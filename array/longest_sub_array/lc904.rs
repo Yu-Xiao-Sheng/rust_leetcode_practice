@@ -13,7 +13,7 @@ premium lock icon
 一旦你走到某棵树前，但水果不符合篮子的水果类型，那么就必须停止采摘。
 给你一个整数数组 fruits ，返回你可以收集的水果的 最大 数目。
 
- 
+
 
 示例 1：
 
@@ -37,7 +37,7 @@ premium lock icon
 输入：fruits = [3,3,3,1,2,1,1,2,3,3,4]
 输出：5
 解释：可以采摘 [1,2,1,1,2] 这五棵树。
- 
+
 
 提示：
 
@@ -48,44 +48,72 @@ premium lock icon
 struct Solution;
 impl Solution {
     pub fn total_fruit(fruits: Vec<i32>) -> i32 {
+        // 局部引用HashMap
         use std::collections::HashMap;
-        // 设置左指针
+        // 记录当前窗口内各水果数量
+        let mut count = HashMap::new();
+        // 左指针
         let mut left = 0;
-        // 设置结果
-        let mut result = 0;
-        // 设置篮子集合
-        let mut map = HashMap::new();
-        for right in 0..fruits.len(){
-            *map.entry(fruits[right]).or_insert(0) += 1;
-            while map.len() > 2 {
-                *map.entry(fruits[left]).or_insert(0) -= 1;
-                if *map.get(&fruits[left]).unwrap() == 0 {
-                    map.remove(&fruits[left]);
-                }
-                left += 1;
+        // 最大水果数量
+        let mut max_len = 0;
+
+        for right in 0..fruits.len() {
+            // 扩大窗口，将右指针指向的水果加入窗口
+            *count.entry(fruits[right]).or_insert(0) += 1;
+
+            while count.len() > 2 {
+                let left_fruit = fruits[left];
+                count.get_mut()
             }
-            result = result.max(right-left+1);
         }
-        return result as i32;
+    }
+
+    pub fn total_fruit2(fruits: Vec<i32>) -> i32 {
+        use std::collections::HashMap;
+
+        let mut fruit_count = HashMap::new(); // 记录当前窗口内各水果的数量
+        let mut left = 0; // 左指针
+        let mut max_fruits = 0; // 最大水果数量
+
+        for right in 0..fruits.len() {
+            // 扩大窗口：将右指针指向的水果加入窗口
+            *fruit_count.entry(fruits[right]).or_insert(0) += 1;
+
+            // 如果水果种类超过2种，缩小窗口
+            while fruit_count.len() > 2 {
+                let left_fruit = fruits[left];
+                *fruit_count.get_mut(&left_fruit).unwrap() -= 1;
+
+                // 如果某种水果数量变为0，从HashMap中移除
+                if fruit_count[&left_fruit] == 0 {
+                    fruit_count.remove(&left_fruit);
+                }
+
+                left += 1; // 移动左指针
+            }
+
+            // 更新最大水果数量
+            max_fruits = max_fruits.max(right - left + 1);
+        }
+
+        max_fruits as i32
     }
 }
 
 fn main() {
-    let fruits = vec![1,2,1];
+    let fruits = vec![1, 2, 1];
     let result = Solution::total_fruit(fruits);
     println!("result: {}", result);
 
-    let fruits = vec![0,1,2,2];
+    let fruits = vec![0, 1, 2, 2];
     let result = Solution::total_fruit(fruits);
     println!("result: {}", result);
 
-    let fruits = vec![1,2,3,2,2];
+    let fruits = vec![1, 2, 3, 2, 2];
     let result = Solution::total_fruit(fruits);
     println!("result: {}", result);
 
-    let fruits = vec![3,3,3,1,2,1,1,2,3,3,4];
+    let fruits = vec![3, 3, 3, 1, 2, 1, 1, 2, 3, 3, 4];
     let result = Solution::total_fruit(fruits);
     println!("result: {}", result);
-    
-    
 }
