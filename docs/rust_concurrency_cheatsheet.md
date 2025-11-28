@@ -181,3 +181,34 @@ let a: Box<dyn Animal> = Box::new(Dog);
 a.speak();
 ```
 - 何时不用 Box：需要多所有权时用 `Rc/Arc`；需要内部共享可变则配合锁；仅需栈上存储或无需动态分发时直接用值或引用即可。多态但零开销可用泛型，而非 `Box<dyn Trait>`。
+
+## 内部可变性工具：Cell / RefCell / Mutex / RwLock
+- 背景：Rust 默认借用规则在编译期检查；内部可变性类型允许在特定约束下延迟到运行时检查或加锁。
+- `Cell<T>`：单线程，适合 `Copy` 数据的小型值；提供 `get/set/replace`，不返回引用。
+- `RefCell<T>`：单线程，运行时借用检查（`borrow` 多次不可变或一次可变），违规则 `panic`。常与 `Rc` 组合形成可变共享：`Rc<RefCell<T>>`。
+- `Mutex<T>`：线程安全互斥锁，阻塞式访问；`lock()` 返回 `MutexGuard`，实现了内置解锁（Drop）。用于跨线程可变共享，常与 `Arc` 组合：`Arc<Mutex<T>>`。
+- `RwLock<T>`：读写锁，多读单写，线程安全；模式同 `Mutex`，读用 `read()`，写用 `write()`。
+- 原子类型：`AtomicBool/AtomicUsize` 等，提供无锁数值读写/原子操作，适合简单标志/计数。
+- 快速示例：
+```rust
+use std::rc::Rc;
+use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
+
+// 单线程共享可变
+let shared = Rc::new(RefCell::new(0));
+{
+    let mut r = shared.borrow_mut();
+    *r += 1;
+}
+
+// 跨线程共享可变
+let counter = Arc::new(Mutex::new(0));
+let c = counter.clone();
+std::thread::spawn(move || {
+    let mut n = c.lock().unwrap();
+    *n += 1;
+}).join().unwrap();
+println!("{}", *counter.lock().unwrap());
+```
+- 选择指南：单线程 + 需要返回引用 ⇒ `RefCell`; 单线程 + `Copy` 小值 ⇒ `Cell`; 跨线程共享 ⇒ `Arc<Mutex>`/`Arc<RwLock>`；简单计数/标志 ⇒ 原子类型。
