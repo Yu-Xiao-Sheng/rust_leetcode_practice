@@ -1,5 +1,5 @@
 
-type Link = Option<Box<Node>>
+type Link = Option<Box<Node>>;
 
 struct Node {
     elem: i32,
