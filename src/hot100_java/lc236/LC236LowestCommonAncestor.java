@@ -1,3 +1,5 @@
+package hot100_java.lc236;
+
 import java.util.HashMap;
 import java.util.Map;
 

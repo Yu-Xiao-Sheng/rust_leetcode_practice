@@ -1,3 +1,5 @@
+package hot100_java.lc283;
+
 import java.util.Arrays;
 
 /**

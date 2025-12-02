@@ -1,3 +1,5 @@
+package hot100_java.lc128;
+
 import java.util.HashSet;
 import java.util.Set;
 

@@ -1,3 +1,5 @@
+package hot100_java.lc15;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
