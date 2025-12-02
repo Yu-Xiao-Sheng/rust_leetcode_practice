@@ -11,36 +11,42 @@ import java.util.List;
 public class LC015ThreeSum {
 
     public static List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        int len = nums.length;
+        if (nums == null || len < 3) return result;
+
         Arrays.sort(nums);
-        List<List<Integer>> res = new ArrayList<>();
-        for (int i = 0; i < nums.length; i++) {
+
+        for (int i = 0; i < len; i++) {
             if (nums[i] > 0) {
                 break;
             }
             if (i > 0 && nums[i] == nums[i - 1]) {
                 continue;
             }
-            int l = i + 1, r = nums.length - 1;
-            while (l < r) {
-                int sum = nums[i] + nums[l] + nums[r];
+
+            int left = i + 1;
+            int right = len - 1;
+
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
                 if (sum == 0) {
-                    res.add(Arrays.asList(nums[i], nums[l], nums[r]));
-                    l++;
-                    r--;
-                    while (l < r && nums[l] == nums[l - 1]) {
-                        l++;
-                    }
-                    while (l < r && nums[r] == nums[r + 1]) {
-                        r--;
-                    }
+                    result.add(Arrays.asList(nums[i], nums[left], nums[right]));
+                    // 关键去重步骤
+                    while (left < right && nums[left + 1] == nums[left]) left++;
+                    while (left < right && nums[right - 1] == nums[right]) right--;
+                    // 去重之后，真正向内缩短
+                    left++;
+                    right--;
                 } else if (sum > 0) {
-                    r--;
-                } else {
-                    l++;
+                    right--;
+                } else if (sum < 0) {
+                    left++;
                 }
             }
         }
-        return res;
+
+        return result;
     }
 
     public static void main(String[] args) {
